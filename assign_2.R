@@ -24,3 +24,23 @@ pos
 
 position <- tibble(Position = pos)
 position
+
+
+url <- "https://oce.op.gg/champions?region=oce&tier=gold&position=top"
+
+rank <- url %>% 
+  read_html() %>% 
+  html_nodes(".css-3bfwic.e1oulx2j4 > span") %>% 
+  html_text()
+rank
+
+champion <- url %>% 
+  read_html() %>% 
+  html_nodes("tbody > tr > td.css-cym2o0.e1oulx2j6")
+champion
+
+win <- url %>% 
+  read_html() %>% 
+  html_nodes(".css-1wvfkid.exo2f211") %>% 
+  html_text()
+win
