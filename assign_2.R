@@ -39,3 +39,6 @@ discription
 
 datas <- tibble(Game = name, Release = clamp_detail, Meta_Score = meta_score, Detail = discription)
 datas
+
+datas %>% 
+  write_csv("temporary.csv")
