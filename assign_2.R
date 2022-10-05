@@ -7,40 +7,35 @@ library(rvest)
 library(xml2)
 library(polite)
 
-url <- "https://oce.op.gg/champions"
-
-# a <- url %>% 
-#   read_html() %>% 
-#   html_nodes("div.css-gfgr92.e5qh6tw3 > select#platinum_plus > option") %>%
-#   html_attr("value") 
-# tier <- tibble(Tier = a)
-# tier  
-
-pos <- url %>% 
+url <- "https://www.metacritic.com/game"
+url %>% 
   read_html() %>% 
-  html_nodes("nav.css-1wrsp9i.e14ouzjd5 > button") %>% 
+  html_structure()
+
+
+data <- url %>% 
+  read_html()
+
+name <- data %>% 
+  html_nodes(".title > h3") %>% 
+  html_text2()
+name
+
+clamp_detail <- data %>% 
+  html_nodes(".clamp-details > span") %>% 
   html_text()
-pos
+clamp_detail
 
-position <- tibble(Position = pos)
-position
-
-
-url <- "https://oce.op.gg/champions?region=oce&tier=gold&position=top"
-
-rank <- url %>% 
-  read_html() %>% 
-  html_nodes(".css-3bfwic.e1oulx2j4 > span") %>% 
+meta_score <- data %>% 
+  html_nodes(".clamp-metascore > a > div.metascore_w.large.game.positive") %>% 
   html_text()
-rank
+meta_score
 
-champion <- url %>% 
-  read_html() %>% 
-  html_nodes("tbody > tr > td.css-cym2o0.e1oulx2j6")
-champion
+discription <- data %>% 
+  html_nodes(".summary") %>% 
+  html_text2()
+discription
 
-win <- url %>% 
-  read_html() %>% 
-  html_nodes(".css-1wvfkid.exo2f211") %>% 
-  html_text()
-win
+
+datas <- tibble(Game = name, Release = clamp_detail, Meta_Score = meta_score, Detail = discription)
+datas
