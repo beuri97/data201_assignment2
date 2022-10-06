@@ -59,9 +59,23 @@ game_description <- games_page %>%
   html_text2()
 game_description
 
-
-datas <- tibble(Game = name, Release = clamp_detail, Meta_Score = meta_score, Detail = discription)
+datas <- tibble(Game = top_games, Release = release_date, Meta_Score = meta_score, Detail = game_description)
 datas
 
 datas %>% 
   write_csv("temporary.csv")
+  
+genre <- games_page %>% 
+  html_nodes("ul.genre_nav > li > a") %>% 
+  html_text2()
+genre <- tibble(Genre = genre)
+
+legacy <- games_page %>% 
+  html_nodes(".platforms.legacy_platforms > li") %>% 
+  html_text2()
+legacy <- tibble(Legacy = legacy)
+
+coming_soon_product <- games_page %>% 
+  html_nodes(".product_title > a") %>% 
+  html_text2()
+coming_soon_product <- tibble(coming_soon_product)
