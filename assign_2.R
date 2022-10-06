@@ -6,6 +6,7 @@ library(stringr)
 library(rvest)
 library(xml2)
 library(polite)
+library(fuzzyjoin)
 
 url <- "https://www.metacritic.com/game"
 games_page <- url %>% 
@@ -19,47 +20,43 @@ games_page %>%
 get_data <- function(data, element_class) {
   text_data <- data %>% 
     html_nodes(element_class) %>% 
-    html_text()
+    html_text2()
   
   return(text_data)
 }
 
-# New Game Relases
+# Gaming Platforms
+platforms <- tibble(Gaming_Platforms = get_data(games_page, ".platforms.current_platforms > li"))
+platforms
+  
+
+# New Game Releases
 new_games <- tibble(Title = get_data(games_page, "th.product_title"),
                     Platform = get_data(games_page, ".product_platform") %>% 
-                               str_replace_all("[\\h+\r\n]", ""),
+                      str_extract(regex("(?<=(on ))[a-zA-Z0-9^]+")),
                     Score = get_data(games_page, ".metascore_anchor > div"),
                     Critics = get_data(games_page, ".critic_count > a > span"))
-new_games
-
-platform <- games_page %>% 
-  
-overview
-
-game_data <- games_page %>% 
-  html_nodes("div.product_score_data") %>% 
-  html_text()
-game_data
+new_games 
 
 # Top games info
 top_games <- games_page %>% 
   html_nodes(".title > h3") %>% 
-  html_text()
+  html_text2()
 top_games
 
 release_date <- games_page %>% 
   html_nodes(".clamp-details > span") %>% 
-  html_text()
+  html_text2()
 release_date
 
 meta_score <- games_page %>% 
   html_nodes(".clamp-metascore > a > div.metascore_w.large.game.positive") %>% 
-  html_text()
+  html_text2()
 meta_score
 
 game_description <- games_page %>% 
   html_nodes(".summary") %>% 
-  html_text()
+  html_text2()
 game_description
 
 
