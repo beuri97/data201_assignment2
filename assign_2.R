@@ -27,7 +27,8 @@ get_data <- function(data, element_class) {
 
 # Gaming Platforms
 platforms <- tibble(Gaming_Platforms = get_data(games_page, ".platforms.current_platforms > li"))
-platforms
+platforms %>% 
+  mutate(Ref = games_page %>% html_nodes(".platforms.current_platforms > li > div > span > a") %>% html_attr("href"))
   
 
 # New Game Releases
@@ -62,8 +63,8 @@ game_description
 datas <- tibble(Game = top_games, Release = release_date, Meta_Score = meta_score, Detail = game_description)
 datas
 
-datas %>% 
-  write_csv("temporary.csv")
+# datas %>% 
+#   write_csv("temporary.csv")
   
 genre <- games_page %>% 
   html_nodes("ul.genre_nav > li > a") %>% 
