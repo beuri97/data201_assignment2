@@ -57,14 +57,16 @@ description
 # Save the result as meta_score.
 meta_score <- games %>% 
   html_nodes(".clamp-metascore > a > div") %>% 
-  html_text()
+  html_text() %>% 
+  as.double()
 meta_score
 
 # Finds the div element inside a element under the element having .clamp-usercore as class and extract the text inside.
 # Save the result as user_score.
 user_score <- games %>% 
   html_nodes(".clamp-userscore > a > div") %>% 
-  html_text()
+  html_text() %>% 
+  as.double()
 user_score
 
 # Creates a data frame containing the scraped data from Games of all Time page.
@@ -148,7 +150,7 @@ get_scores <- function(data) {
     html_nodes(".clamp-userscore > a > div") %>% 
     html_text()
   
-  return(tibble(ms = ms, us = us))
+  return(tibble(ms = map_dbl(ms, as.double), us = map_dbl(us, as.double)))
 }
 
 # Data frame of links of the web pages we are interested in
@@ -178,3 +180,40 @@ games_this_year <- games_this_year %>%
   mutate(release_date = map(release_date, convert_date),
          game_descr = map(game_descr, clean_text),
          platform_name = map(platform_name, clean_text))
+
+# Take the content of the html file of the new games page.
+game_scores <- pages[[1]][[2]] %>% get_scores()
+
+# Create a data frame with all of the information about the first 100 games listed under
+# new games web page.
+new_games <- tibble(title = pages[[1]][[2]] %>% get_title(),
+                    release_date = pages[[1]][[2]] %>% get_date(),
+                    platform_name = pages[[1]][[2]] %>% get_platform(),
+                    game_descr = pages[[1]][[2]] %>% get_description(),
+                    meta_score = game_scores$ms,
+                    user_score = game_scores$us)
+
+# Modify the release_date by converting it to date type.
+# Modify the game_description and platform_name by removing special characters and whitespaces.
+new_games <- new_games %>% 
+  mutate(release_date = release_date %>% 
+           convert_date(),
+         game_descr = map_chr(game_descr, clean_text),
+         platform_name = map_chr(platform_name, clean_text))
+
+new_games %>% 
+  glimpse()
+
+top_20 <- new_games %>% 
+  gather(key=score_type,
+         value = score, c(meta_score, user_score))
+top_10 <-top_20 %>% 
+  top_n(10)
+
+meta <- top_10 %>% 
+  ggplot(aes(x=title, y=score, fill = score_type)) +
+  geom_col(position="dodge")+
+  scale_y_continuous(sec.axis = sec_axis(~ . * 10, name = "meta_score"))+
+  labs(y="user_score") 
+meta
+
